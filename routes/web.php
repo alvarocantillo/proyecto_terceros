@@ -1,5 +1,6 @@
 <?php
 use App\Cliente;
+use App\Vehiculo;
 use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
@@ -100,3 +101,92 @@ Route::delete('/cliente/{id}', function ($id) {
 	Cliente::findOrFail($id)->delete();
         return redirect('/clientes');
 });
+
+
+/**
+ * Mostrar los vehiculos
+ */
+Route::get('/vehiculos', function () {
+	$vehiculos=Vehiculo::all();
+    return view('vehiculos', ['vehiculos'=>$vehiculos]);
+});
+
+/**
+ * Agregar un vehiculo
+ */
+Route::post('/vehiculo', function (Request $request) {
+
+    $validator = Validator::make($request->all(), [
+            'cliente_id' => 'required',
+            'placa' =>'required|max:6',
+            'vin' =>'required|min:17',
+            'modelo' =>'required|max:10',
+            'ano' =>'required|max:4',
+            'color' =>'required|max:10',
+            'kilometraje' =>'required',
+        ]);
+        if ($validator->fails()) {
+            return redirect('/vehiculos')
+                ->withInput()
+                ->withErrors($validator);
+        }
+        $vehiculo = new Vehiculo;
+        $vehiculo->cliente_id = $request->cliente_id;
+        $vehiculo->placa = $request->placa;
+        $vehiculo->vin = $request->vin;
+        $vehiculo->modelo = $request->modelo;
+        $vehiculo->ano = $request->ano;
+        $vehiculo->color = $request->color;
+        $vehiculo->kilometraje = $request->kilometraje;
+        $vehiculo->save();
+
+        return redirect('/vehiculos');
+});
+
+/**
+ * Eliminar un vehiculo existente
+ */
+Route::delete('/vehiculo/{id}', function ($id) {
+	Vehiculo::findOrFail($id)->delete();
+        return redirect('/vehiculos');
+});
+
+Route::put('/vehiculo/{id}', function (Request $request, $id) {
+
+    $validator = Validator::make($request->all(), [
+            'cliente_id' => 'required',
+            'placa' =>'required|max:6',
+            'vin' =>'required|min:17',
+            'modelo' =>'required|max:10',
+            'ano' =>'required|max:4',
+            'color' =>'required|max:10',
+            'kilometraje' =>'required',
+        ]);
+        if ($validator->fails()) {
+            return redirect('/vehiculos')
+                ->withInput()
+                ->withErrors($validator);
+        }
+        
+        $vehiculo = Vehiculo::findOrFail($id);
+
+        $vehiculo->cliente_id = $request->cliente_id;
+        $vehiculo->placa = $request->placa;
+        $vehiculo->vin = $request->vin;
+        $vehiculo->modelo = $request->modelo;
+        $vehiculo->ano = $request->ano;
+        $vehiculo->color = $request->color;
+        $vehiculo->kilometraje = $request->kilometraje;
+        $vehiculo->save();
+
+        return redirect('/vehiculos');
+});
+
+/**
+ * Mostrar la edicion de los clientes
+ */
+Route::get('/vehiculos/{id}', function ($id) {
+	$vehiculo=Vehiculo::findOrFail($id);
+    return view('vehiculos-editar', ['vehiculo'=>$vehiculo]);
+});
+
